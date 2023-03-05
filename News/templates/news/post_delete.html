@@ -1,0 +1,37 @@
+{% extends 'flatpages/default.html' %}
+
+{% load custom_filters %} <!-- не забываем заранее загружать наши фильтры! -->
+
+{% block title %} News {% endblock title %}
+
+{% block content %}
+<h2>Вы действительно хотите удалить данную публикацию?</h2>
+<hr>
+<br>
+<table>
+    <tr>
+        <tr><h3>
+            {{ post.postTitle|censor }}
+        </h3></tr>
+        <tr><p><i>
+            {{ post.pubDate|date:'d M Y H:i' }}
+        </i></p></tr>
+        <tr><p><i>
+            {{ post.author }}
+        </i></p></tr>
+        <tr>
+            {{ post.postText|censor }}
+        </tr>
+    </tr>
+</table>
+
+<br>
+<hr>
+<br>
+
+<form method="POST">
+    {% csrf_token %}
+    <p>Подтвердить <input type="checkbox" name="Подтвердить" required="required"></p>
+    <input type="submit" value="удалить">
+</form>
+{% endblock content %}

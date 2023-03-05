@@ -1,0 +1,89 @@
+{% extends 'flatpages/default.html' %}
+
+{% load custom_filters %} <!-- не забываем заранее загружать наши фильтры! -->
+
+{% load custom_tags %}
+
+
+{% get_filter_params request as params %}
+
+{% block title %}
+News
+{% endblock title %}
+
+{% block content %}
+    <h1>Поиск новостей</h1>
+    {{ time_now|date:'d M Y' }} <!-- Здесь мы применяем фильтр date. Он очень похож на метод strftime у даты. С его помощью мы можем выводить дату в нужном нам формате -->
+    <h4> Количество всех публикаций: {{ news_list|length }} </h4>
+    <hr>
+
+<!-- Перед таблицей добавим форму для поиска -->
+<br>
+<form method="GET">
+    {{ filter.form.as_p }} <!-- Форму от фильтров за нас сделает django. А вот кнопку, увы придётся делать самому -->
+    <input type="submit" value="Search">
+    <button> <a class="nav-link" href="/news/search/">Reset</a> </button>
+</form>
+<br>
+    {% if news %}
+        <table>
+            <tr>
+                <td>
+                    <h4>Заголовок</h4>
+                </td>
+                <td>
+                    <h4>Дата публикации</h4>
+                </td>
+                <td>
+                    <h4>Текст</h4>
+                </td>
+            </tr>
+        {% for new in news %}
+            <tr>
+                <td>
+                    <a href="{{ new.get_absolute_url }}">{{ new.postTitle|censor }} </a>
+                </td>
+                <td>
+                    {{ new.pubDate|date:'d M Y' }}
+                </td>
+                <td>
+                    {{ new.postText|truncatechars:50|censor }}
+                </td>
+            </tr>
+        {% endfor %}
+        </table>
+    {% else %}
+        <h2>Новостей и публикаций нет!</h2>
+    {% endif %}
+<br>
+<br>
+<!-- Проверяем что поддерживается постраничный вывод -->
+{% if is_paginated %}
+
+    <!-- Если доступна предыдущая страница, то даём ссылку на неё и самую первую страницу -->
+    {% if page_obj.has_previous %}
+        <a href="?{% for param in params %}{{ param }}{% endfor %}&page=1">First</a>
+        <a href="?{% for param in params %}{{ param }}{% endfor %}&page={{ page_obj.previous_page_number }}"><<<</a>
+    {% endif %}
+
+    <!-- Показываем только текущую страницу и ближайшие к ней, чтобы список не тянулся и не захламлял страницу -->
+    {% for num in page_obj.paginator.page_range %}
+        {% if page_obj.number == num %}
+            <a>{{ num }}</a>
+        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+            <a href="?{% for param in params %}{{ param }}{% endfor %}&page={{ num }}">{{ num }}</a>
+        {% endif %}
+    {% endfor %}
+
+    <!-- Если есть следующая страница, то даём ссылку на неё и на самую последнюю страницу -->
+    {% if page_obj.has_next %}
+        <a href="?{% for param in params %}{{ param }}{% endfor %}&page={{ page_obj.next_page_number }}">>>></a>
+        <a href="?{% for param in params %}{{ param }}{% endfor %}&page={{ page_obj.paginator.num_pages }}">Last</a>
+    {% endif %}
+
+{% endif %}
+<br>
+<br>
+<br>
+<br>
+{% endblock content %}

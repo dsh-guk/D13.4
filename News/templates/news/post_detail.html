@@ -1,0 +1,38 @@
+{% extends 'flatpages/default.html' %}
+
+{% load custom_filters %} <!-- не забываем заранее загружать наши фильтры! -->
+
+{% block title %}
+News
+{% endblock title %}
+
+{% block content %}
+    <h1>{{ post.get_categoryType_display }}</h1>
+<!--    {{ time_now|date:'d M Y' }} &lt;!&ndash; Здесь мы применяем фильтр date. Он очень похож на метод strftime у даты. С его помощью мы можем выводить дату в нужном нам формате &ndash;&gt;-->
+    <hr>
+    {% if post %}
+        <table>
+            <tr>
+                <tr><h3>
+                    {{ post.postTitle|censor }}
+                </h3></tr>
+                <tr><p><i>
+                    {{ post.pubDate|date:'d M Y H:i' }}
+                </i></p></tr>
+                <tr><p><i>
+                    {{ post.author }}
+                </i></p></tr>
+                <tr>
+                    {{ post.postText|censor }}
+                </tr>
+            </tr>
+        </table>
+    {% else %}
+        <h2>Новостей и публикаций нет!</h2>
+    {% endif %}
+<br>
+<hr>
+<br>
+<button> <a class="nav-link" href="/news/">Вернуться</a> </button>
+
+{% endblock content %}
